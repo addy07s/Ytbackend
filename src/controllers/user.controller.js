@@ -4,6 +4,7 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/Apiresponse.js";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 const generateAccessAndRefreshTokens = async (userid) => {
   try {
@@ -367,6 +368,54 @@ const getUserChanelProfile = asyncHandler(async (req, res) => {
   .json(new ApiResponse(200,channel[0],"user channel fetched successfully"))
 });      //!!!!!!!
 
+const getWatchHistory = asyncHandler(async (req,res) => {
+  
+  const user= await User.aggregate([
+    {
+      $match:{
+        _id:new mongoose.Types.ObjectId(req.user._id)
+      }
+    },
+    {
+      $lookup:{
+        from:"videos",//DATA MODEL NAME IN MONGODB
+        localField:"watchHistory",
+        foreignField:"_id",
+        as:"watchHistory",
+        pipeline:[
+          {
+            $lookup:{
+              from:"user",
+              localField:"ownner",     //VIDEO KE ANDAR HI OWNER JO EK USER HAI USKI ID AS OWNER
+              foreignField:"_id",      //WAS THE OWNER ID ALREADY NOT PRESENT?????? IN OWNER
+              as:"owner",
+              pipeline:[
+                {
+                  $project:{    //CHECK THE DIFFERENCE IN SYNTAX, IN LAST FUNCTION WE PROJECTED OUSIDE
+                    fullName:1,  // HERE IT IS DIRECTLY INSIDE
+                    username:1,
+                    avatar:1
+                  }
+                }
+              ]
+            }
+          },
+          {
+            $addFields:{
+              owner:{  // OVERWRITING 
+                $first:'$owner'      //Ab it wont go as an array
+              }
+            }
+          }
+        ]
+      }
+    }
+  ])
+
+  res.status(200)
+  .json(new ApiResponse(200,user[0].watchHistory,"watch history fetched successfully"))
+})
+
 export {
   registerUser,
   loginUser,
@@ -378,4 +427,5 @@ export {
   updateUserAvatar,
   updateUserCoverImage,
   getUserChanelProfile,
+  getWatchHistory
 };
