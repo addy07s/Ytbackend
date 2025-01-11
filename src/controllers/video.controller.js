@@ -11,5 +11,21 @@ const uploadVideo=asyncHandler(async (req,res) => {
 })
 
 const getVideoById=asyncHandler(async (req,res) => {
+    const{videoId}=req.params
+
+    try {
+        const video=await getVideoById(videoId);
     
+        if(!video){
+            throw new ApiError(400,"video not found")
+        }
+        return res.status(200)
+        .json(new ApiResponse(200,video,"video fetched"))
+    } catch (error) {
+        throw new ApiError
+        
+    }
+
+
+
 })
