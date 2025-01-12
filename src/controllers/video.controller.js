@@ -4,9 +4,11 @@ import {asyncHandler} from "../utils/asyncHandler.js"
 import ApiError from "../utils/ApiError.js"
 import mongoose from "mongoose"
 import ApiResponse from "../utils/ApiResponse.js"
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const uploadVideo=asyncHandler(async (req,res) => {
-    const{videoFile}=req.body
+    const{title, description}=req.body
+    //TODO
     
 })
 
@@ -22,10 +24,16 @@ const getVideoById=asyncHandler(async (req,res) => {
         return res.status(200)
         .json(new ApiResponse(200,video,"video fetched"))
     } catch (error) {
-        throw new ApiError
+        throw new ApiError(400,"something went wrong while getting video id")
         
     }
 
 
+
+})
+
+const getAllVideos= asyncHandler(async (req,res) => {
+    
+    const {page=1, limit=10, query, sortBy='createdAt', sortType='desc', userId }=req.query
 
 })
