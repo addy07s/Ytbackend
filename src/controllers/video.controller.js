@@ -64,6 +64,20 @@ const getAllVideos= asyncHandler(async (req,res) => {
         ...(query && { title: { $regex: query, $options: 'i' } }), // Case-insensitive search on title
         ...(userId && { userId }), // Filter by userId if provided
       };
+      
+      const sort = { [sortBy]: sortType === 'desc' ? -1 : 1 };
+
+      const videos = await Video.find(filter)
+        .sort(sort)
+        .skip((pageNum - 1) * limitNum)
+        .limit(limitNum);
+
+
+        const totalVideos = await Video.countDocuments(filter);
+        const totalPages = Math.ceil(totalVideos / limitNum);
+
+        new ApiResponse(200, { page:pageNum,limit:limitNum,totalPages, videos, totalVideos },
+             'Videos fetched successfully')
 
 })
 
