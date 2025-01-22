@@ -25,7 +25,7 @@ const generateAccessAndRefreshTokens = async (userid) => {
 
 const registerUser = asyncHandler(async (req, res) => {
   const { email, fullName, username, password } = req.body;
-  console.log("email:", email);
+ // console.log("email:", email);
   if (
     [email, fullName, username, password].some(
       (field) => field?.trim() === "" // logic to check if all fields are given
